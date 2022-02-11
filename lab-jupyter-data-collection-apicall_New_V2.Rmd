@@ -1,0 +1,98 @@
+```{r}
+# Check if need to install rvest` library
+require("httr")
+library(httr)
+
+# URL for Current Weather API
+#current_weather_url <- 'https://api.openweathermap.org/data/2.5/weather'
+
+# need to be replaced by your real API key
+your_api_key <- "db0fe47c4a30e79eef0fd7de6bcf9af8"
+
+
+# Create some empty vectors to hold data temporarily
+# City name column
+city <- c()
+weather <- c()
+visibility <- c()
+temp <- c()
+temp_min <- c()
+temp_max <- c()
+pressure <- c()
+humidity <- c()
+wind_speed <- c()
+wind_deg <- c()
+q <- c()
+
+
+# Forecast timestamp
+forecast_datetime <- c()
+# Season column# Note that for season, you can hard code a season value from levels Spring, Summer, Autumn, and Winter based on your current month.
+season <- c()
+
+# Get forecast data for a given city list
+get_weather_forecaset_by_cities <- function(city_names){ 
+  df <- data.frame() 
+  for (city_name in city_names){ 
+    # Forecast API URL 
+    forecast_url <- 'https://api.openweathermap.org/data/2.5/forecast' 
+    # Create query parameters 
+     forecast_query <- list(q = city, appid = your_api_key, units="metric")  
+     
+    # Make HTTP GET call for the given city 
+    response <- GET(forecast_url, query=forecast_query)
+    http_type(response)
+
+    json_result <- content(response, as="parsed")
+
+
+    # Note that the 5-day forecast JSON result is a list of lists. You can print the response to check the results 
+    results <- json_result$list 
+    
+    # Loop the json result 
+    for(result in results) { 
+      city <- c(city, city_name) }
+
+# $weather is also a list with one element, its $main element indicates the weather status such as clear or rain
+weather <- c(weather, json_result$weather[[1]]$main)
+# Get Visibility
+visibility <- c(visibility, json_result$visibility)
+# Get current temperature 
+temp <- c(temp, json_result$main$temp)
+# Get min temperature 
+temp_min <- c(temp_min, json_result$main$temp_min)
+# Get max temperature 
+temp_max <- c(temp_max, json_result$main$temp_max)
+# Get pressure
+pressure <- c(pressure, json_result$main$pressure)
+# Get humidity
+humidity <- c(humidity, json_result$main$humidity)
+# Get wind speed
+wind_speed <- c(wind_speed, json_result$wind$speed)
+# Get wind direction
+wind_deg <- c(wind_deg, json_result$wind$deg)
+
+# Combine all vectors
+weather_data_frame <- data.frame(city=city,
+                                weather=weather, 
+                                 visibility=visibility, 
+                                 temp=temp, 
+                                 temp_min=temp_min, 
+                                 temp_max=temp_max, 
+                                 pressure=pressure, 
+                                 humidity=humidity, 
+                                 wind_speed=wind_speed, 
+                                 wind_deg=wind_deg)
+
+  } 
+  # Return a data frame 
+  return(df) 
+}
+
+
+cities <- c("Seoul", "Washington, D.C.", "Paris", "Suzhou")
+cities_weather_df <- get_weather_forecaset_by_cities(cities)
+
+
+```
+
